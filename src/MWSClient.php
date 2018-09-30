@@ -910,10 +910,11 @@ class MWSClient{
 
     /**
      * Post to create or update a product (_POST_FLAT_FILE_LISTINGS_DATA_)
-     * @param  object $MWSProduct or array of MWSProduct objects
+     * @param  object $MWSProduct or array of MWSProduct or Custom objects
      * @return array
      */
-    public function postProduct($MWSProduct) {
+    public function postProduct($MWSProduct, $template = 'Custom', $version = null, $signature = null)
+    {
 
         if (!is_array($MWSProduct)) {
             $MWSProduct = [$MWSProduct];
@@ -924,16 +925,9 @@ class MWSClient{
         $csv->setDelimiter("\t");
         $csv->setInputEncoding('iso-8859-1');
 
-        $csv->insertOne(['TemplateType=Offer', 'Version=2014.0703']);
+        $csv->insertOne(['TemplateType=' . $template, 'Version=' . $version, 'TemplateSignature=' . $signature]);
 
-        $header = ['sku', 'price', 'quantity', 'product-id',
-            'product-id-type', 'condition-type', 'condition-note',
-            'ASIN-hint', 'title', 'product-tax-code', 'operation-type',
-            'sale-price', 'sale-start-date', 'sale-end-date', 'leadtime-to-ship',
-            'launch-date', 'is-giftwrap-available', 'is-gift-message-available',
-            'fulfillment-center-id', 'main-offer-image', 'offer-image1',
-            'offer-image2', 'offer-image3', 'offer-image4', 'offer-image5'
-        ];
+        $header = array_keys($MWSProduct[0]->toArray());
 
         $csv->insertOne($header);
         $csv->insertOne($header);
